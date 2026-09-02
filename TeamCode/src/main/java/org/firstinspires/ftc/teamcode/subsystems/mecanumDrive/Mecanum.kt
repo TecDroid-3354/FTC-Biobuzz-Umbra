@@ -14,7 +14,14 @@ import com.seattlesolvers.solverslib.pedroCommand.FollowPathCommand
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D
 import org.firstinspires.ftc.teamcode.utils.Alliance
+import org.firstinspires.ftc.teamcode.utils.Distance
+import org.firstinspires.ftc.teamcode.utils.extensions.h
+import org.firstinspires.ftc.teamcode.utils.extensions.toPose
 import org.firstinspires.ftc.teamcode.utils.extensions.toPose2D
+import org.firstinspires.ftc.teamcode.utils.extensions.x
+import org.firstinspires.ftc.teamcode.utils.extensions.y
+import kotlin.math.pow
+import kotlin.math.sqrt
 
 class Mecanum(
     private val follower: Follower,
@@ -37,12 +44,13 @@ class Mecanum(
     fun driveFollowingDriverInput(): Command {
         return RunCommand({
             follower.setTeleOpDrive(
-                controller.leftX * MecanumConstants.Control.FORWARD_VELOCITY_MULTIPLIER * alliance.multiplier,
-                controller.leftY * MecanumConstants.Control.LATERAL_VELOCITY_MULTIPLIER * alliance.multiplier,
+                -controller.leftY * MecanumConstants.Control.FORWARD_VELOCITY_MULTIPLIER * alliance.multiplier,
+                controller.leftX * MecanumConstants.Control.LATERAL_VELOCITY_MULTIPLIER * alliance.multiplier,
                 controller.rightX * MecanumConstants.Control.TURN_VELOCITY_MULTIPLIER,
                 false
             )
-        }, this)
+        })
+            .addRequirements(this)
             .beforeStarting(InstantCommand({ follower.startTeleopDrive(MecanumConstants.Control.IS_BRAKE_MODE) }))
             .whenFinished  { follower.breakFollowing() }
     }
@@ -60,7 +68,7 @@ class Mecanum(
      * @return a [Rotation2d] as the robot's current heading in radians.
      */
     fun getRotation(): Rotation2d {
-        return Rotation2d(getPose2D().getHeading(AngleUnit.RADIANS))
+        return Rotation2d(getPose2D().h)
     }
 
     /**
@@ -69,6 +77,18 @@ class Mecanum(
      */
     fun getVelocity(): Vector {
         return follower.velocity
+    }
+
+    /**
+     * Gets the distance of the chassis to any target passed to this function.
+     * Uses the [Pose.distanceFrom] method to calculate the distance.
+     * @param target the target to get the distance from
+     * @return the distance from the robot's center to the specified [target]
+     */
+    fun getDistanceTo(target: Pose2D): Distance {
+        val distance = follower.pose.distanceFrom(target.toPose())
+
+        return Distance.fromInches(distance)
     }
 
     /**

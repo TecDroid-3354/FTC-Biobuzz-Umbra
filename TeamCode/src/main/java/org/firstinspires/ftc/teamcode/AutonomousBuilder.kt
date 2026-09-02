@@ -3,17 +3,30 @@ package org.firstinspires.ftc.teamcode
 import com.pedropathing.geometry.Pose
 import com.seattlesolvers.solverslib.command.CommandOpMode
 import com.seattlesolvers.solverslib.command.SequentialCommandGroup
+import com.seattlesolvers.solverslib.command.ParallelDeadlineGroup
+import com.seattlesolvers.solverslib.command.InstantCommand
 import com.seattlesolvers.solverslib.gamepad.GamepadEx
 import org.firstinspires.ftc.teamcode.utils.Alliance
+import org.firstinspires.ftc.teamcode.paths.example.ExamplePaths
 
+/**
+ * The following class was created with the objective of serving as a template for an autonomous routine.
+ * This class is similar to the [TeleOpMode], however, the [GamepadEx] and its command are inexistent here.
+ * Declared below the [Robot] is the [autonomousCommand] which is a [SequentialCommandGroup] and is the only command
+ * that will be executed along the whole routine. You can nest inside the [autonomousCommand] several [Robot.followPathCMD],
+ * [SequentialCommandGroup], [ParallelDeadlineGroup], [InstantCommand], etc.
+ * You'll need to create an instance of a Paths class like [ExamplePaths] and initialize it with an [Alliance]. Once initialized
+ * the [AutonomousBuilder] can be initialized with both [Alliance.RED] or [Alliance.BLUE] and paths will be mirrored flawlessly.
+ * Complete each [TODO] inside [AutonomousBuilder] and the class will be ready to become the inheritor of an [com.qualcomm.robotcore.eventloop.opmode.Autonomous].
+ */
 open class AutonomousBuilder(private val alliance: Alliance): CommandOpMode() {
 
     // The LogiTech controller
     private lateinit var controller: GamepadEx
     // Robot's declaration
     private lateinit var robot: Robot
-    // Declare an instance of your Paths class
-    // TODO
+    // TODO Declare an instance of your Paths class
+
     // Autonomous command declaration
     private lateinit var autonomousCommand: SequentialCommandGroup
 
@@ -22,18 +35,19 @@ open class AutonomousBuilder(private val alliance: Alliance): CommandOpMode() {
         super.reset()
         controller = GamepadEx(gamepad1)
         robot = Robot(alliance, hardwareMap, controller, telemetry)
-        // Create an instance of your Paths class //
-        // TODO
+        // TODO Initialize the instance of your Paths class
 
-        // Set starting pose based on the autonomous to follow //
-        // TODO
+        // TODO Set starting pose based on the autonomous to follow
         robot.initAuto(Pose())
 
         // Chain commands inside the autonomous command //
-        // TODO
+        // TODO IMPORTANT. Fill out the requirements of each command nested in here, if not, the robot won't follow any path.
         autonomousCommand = SequentialCommandGroup(
-
+            // TODO Write here your commands
         )
+
+        // Wait for start to schedule command
+        waitForStart()
 
         // Schedule autonomous command
         autonomousCommand.schedule()

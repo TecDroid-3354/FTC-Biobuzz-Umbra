@@ -58,21 +58,18 @@ class Robot(
 
     /* When the teleop ends, declare what to do */
     override fun onEnd() {
-        PoseTracker.lastPose = drive.getPose2D().toPose()
+        PoseTracker.lastPose = follower.pose
     }
 
     /* Print telemetry using the pTelemetry object on RobotConstants.Telemetry. It will be printed on both Panels and Driver Hub */
     override fun printTelemetry() {
-        pTelemetry.addData("Path Following", follower.currentPath.getHeadingGoal(PathPoint()))
-        pTelemetry.addData("Robot Pose", follower.pose)
+        pTelemetry.addData("Robot Pose", drive.getPose2D())
     }
 
     /**
      * @return the Pedro's Follower
      */
-    override fun getFollower(): Follower {
-        return follower
-    }
+    override fun getFollower(): Follower { return follower }
 
     /* Common method to follow any path */
     override fun followPathCMD(path: PathChain, holdEnd: Boolean, maxPower: Double): Command {
