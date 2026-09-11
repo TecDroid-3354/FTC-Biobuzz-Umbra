@@ -15,13 +15,11 @@
 apply from: '../build.common.gradle'
 apply from: '../build.dependencies.gradle'
 apply plugin: 'org.jetbrains.kotlin.android'
+apply plugin: "org.jetbrains.kotlin.kapt"
 
 android {
     namespace = 'org.firstinspires.ftc.teamcode'
 
-    kotlinOptions {
-        jvmTarget = '1.8'
-    }
     compileSdk 34
     defaultConfig {
         minSdk 24
@@ -36,6 +34,8 @@ kotlin {
     compilerOptions {
         freeCompilerArgs.add("-Xjvm-expose-boxed")
     }
+
+    jvmToolchain(17)
 }
 
 repositories {
@@ -62,8 +62,8 @@ dependencies {
 
     // SolversLib: Latest Stable Version
 
-    implementation "org.solverslib:core:0.3.4" // core
-    implementation "org.solverslib:pedroPathing:0.3.4" // pedroPathing
+    implementation "org.solverslib:core:0.3.5" // core
+    implementation "org.solverslib:pedroPathing:0.3.5" // pedroPathing
     //    implementation "org.solverslib:photon:0.3.4" // photon is optional (see docs for more info)
 
     implementation "com.acmerobotics.dashboard:dashboard:0.5.1" // FTC Dashboard
@@ -74,4 +74,8 @@ dependencies {
 
     // Panels Dashboard
     implementation "com.bylazar:fullpanels:1.0.12"
+
+    // PSI Kit
+    implementation 'org.psilynx.psikit:core:0.2.0'
+    implementation 'org.psilynx.psikit:ftc:0.2.0'
 }

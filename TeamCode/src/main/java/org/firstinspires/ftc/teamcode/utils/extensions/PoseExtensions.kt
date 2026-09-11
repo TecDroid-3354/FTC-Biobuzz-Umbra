@@ -10,6 +10,9 @@ import com.seattlesolvers.solverslib.geometry.Rotation2d
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D
+import org.psilynx.psikit.core.wpi.math.Pose3d
+import org.psilynx.psikit.core.wpi.math.Rotation3d
 
 /**
  * Converts the [Pose] to Qualcomm's [Pose2D] in standard FTC Coordinates for square  or diamond fields like Into The Deep (2025).
@@ -75,3 +78,7 @@ val Pose2D.y : Double; get() = this.getY(DistanceUnit.INCH)
  * Gets the rotation component of the [Pose2D] in radians
  */
 val Pose2D.h : Double ; get() = this.getHeading(AngleUnit.RADIANS)
+
+fun Pose3D.toPose3d(): Pose3d {
+    return Pose3d(this.position.x, this.position.y, this.position.z, Rotation3d(this.orientation.roll, this.orientation.pitch, this.orientation.yaw))
+}
