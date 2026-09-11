@@ -6,12 +6,15 @@ import com.pedropathing.control.PredictiveBrakingCoefficients
 import com.pedropathing.follower.FollowerConstants
 import com.pedropathing.ftc.drivetrains.MecanumConstants
 import com.pedropathing.ftc.localization.constants.OTOSConstants
+import com.pedropathing.ftc.localization.constants.PinpointConstants
 import com.pedropathing.paths.PathConstraints
+import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 import org.firstinspires.ftc.teamcode.utils.Angle
+import org.firstinspires.ftc.teamcode.utils.Distance
 import org.firstinspires.ftc.teamcode.utils.LinearVelocity
 import org.firstinspires.ftc.teamcode.utils.Mass
 import java.util.Optional
@@ -42,11 +45,13 @@ object PedroPathing {
     // Follower Constants
     private val followerDefaultConstants: FollowerConstants = FollowerConstants()
     // Mecanum Constants
-    private val mecanumDefaultConstants : MecanumConstants = MecanumConstants()
+    private val mecanumDefaultConstants : MecanumConstants      = MecanumConstants()
     // OTOS Localizer Constants
-    private val otosDefaultConstants    : OTOSConstants = OTOSConstants()
+    private val otosDefaultConstants    : OTOSConstants         = OTOSConstants()
+    // GoBilda PinPoint Localizer Constants
+    private val pinpointDefaultConstants: PinpointConstants     = PinpointConstants()
     // Values directly obtained per documentation. Path constraints
-    private val pathDefaultConstraints  : PathConstraints = PathConstraints(0.99, 100.0, 1.0, 1.0)
+    private val pathDefaultConstraints  : PathConstraints       = PathConstraints(0.99, 100.0, 1.0, 1.0)
 
     /* INITIALIZATION CODE */
     init {
@@ -85,6 +90,16 @@ object PedroPathing {
             angleUnit                   (AngleUnit.RADIANS)
             // The default distance return units by standard
             linearUnit                  (DistanceUnit.INCH)
+        }
+
+        with(pinpointDefaultConstants) {
+            hardwareMapName("pinpoint")
+            forwardPodY(0.0)
+            strafePodX(0.0)
+            yawScalar(1.0)
+            distanceUnit(DistanceUnit.INCH)
+            forwardEncoderDirection(GoBildaPinpointDriver.EncoderDirection.FORWARD)
+            strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.FORWARD)
         }
     }
 
@@ -234,7 +249,7 @@ object PedroPathing {
      * Default value is [Math.PI] / 20.0
      * @param predictiveBrakingCoefficients these are the coefficients the [com.pedropathing.control.PredictiveBrakingController] will use
      * in order to determine how the robot should move. Under automatic, run the predictive braking tuner.
-     * You can change values live when accessing Panels.
+     * You can change values live when accessing Panels. Normal values will lay between 0.5 and 3.0.
      * @return a new [FollowerConstants] containing the necessary settings to use Predictive Braking as the main controller
      * during Autonomous period.
      */
@@ -328,6 +343,7 @@ object PedroPathing {
     /**
      * Creates a new [OTOSConstants] based on the requested [offset], [linearScalar] and [angularScalar].
      * Default values are included so new ones are not necessary to be given.
+     * Configured hardwareMap name will be "otos".
      * @param offset a [com.qualcomm.hardware.sparkfun.SparkFunOTOS.Pose2D] representing the sensor offset from the robot's center.
      * X and Y values must be given in inches, while the theta value in radians.
      * @param linearScalar a scale factor for the sensor x and y given values.
@@ -365,6 +381,61 @@ object PedroPathing {
 
         // Return the new OTOSConstants()
         return otosNewConstants
+    }
+
+    /**
+     * Creates a new [PinpointConstants] based on the requested offsets and encoder directions.
+     * Defaults values are already included so it's not necessary to pass them in.
+     * Configured hardwareMap name will be "pinpoint".
+     * @param forwardPodYOffset an [Optional] [Distance] representing how far the forward pod is from the X axis measured from the Y axis
+     * of the robot. Consider the left direction as Y positive and right direction as negative.
+     * @param strafePodXOffset an [Optional] [Distance] representing how far the strafe pod is from the Y axis measured from the X axis
+     * of the robot. Consider forward as positive and backward as negative.
+     * @param forwardPodDirection the [GoBildaPinpointDriver.EncoderDirection] of the forward pod. [GoBildaPinpointDriver.EncoderDirection.FORWARD] means no inversion
+     * while [GoBildaPinpointDriver.EncoderDirection.REVERSED] implies an inversion in the sensor's readings.
+     * @param strafePodDirection the [GoBildaPinpointDriver.EncoderDirection] of the strafe pod. [GoBildaPinpointDriver.EncoderDirection.FORWARD] means no inversion
+     * while [GoBildaPinpointDriver.EncoderDirection.REVERSED] implies an inversion in the sensor's readings.
+     * @param yawScalar represents a multiplier which will be applied to the Pinpoint's computer IMU reading.
+     * @return a new [PinpointConstants] with the specified values.
+     */
+    fun createGoBildaPinpointLocalizerConstants(forwardPodYOffset: Optional<Distance>, strafePodXOffset: Optional<Distance>,
+                                                forwardPodDirection: Optional<GoBildaPinpointDriver.EncoderDirection>, strafePodDirection: Optional<GoBildaPinpointDriver.EncoderDirection>,
+                                                yawScalar: Optional<Double>
+    ): PinpointConstants {
+        val pinPointNewConstants: PinpointConstants = pinpointDefaultConstants
+
+        // If present sets the forward pod Y offset value.
+        // Y is positive to the left and negative to the right.
+        if (forwardPodYOffset.isPresent) {
+            pinPointNewConstants.forwardPodY(forwardPodYOffset.get().inches)
+        }
+
+        // If present sets the strafe pod X offset value.
+        // X is positive by going forward and negative going backwards.
+        if (strafePodXOffset.isPresent) {
+            pinPointNewConstants.strafePodX(strafePodXOffset.get().inches)
+        }
+
+        // If present, set the forward pod encoder's direction.
+        // FORWARD direction means no inversion while REVERSE implies an inversion
+        if (forwardPodDirection.isPresent) {
+            pinPointNewConstants.forwardEncoderDirection(forwardPodDirection.get())
+        }
+
+        // If present, set the strafe pod encoder's direction.
+        // FORWARD direction means no inversion while REVERSE implies an inversion
+        if (strafePodDirection.isPresent) {
+            pinPointNewConstants.strafeEncoderDirection(strafePodDirection.get())
+        }
+
+        // If present, sets the yaw scalar the pinpoint computer IMU
+        // This scalar needs to be obtained manually as there's no configured test for that.
+        if (yawScalar.isPresent) {
+            pinPointNewConstants.yawScalar(yawScalar.get())
+        }
+
+        // Returns the new PinpointConstants
+        return pinPointNewConstants
     }
 
     /**
