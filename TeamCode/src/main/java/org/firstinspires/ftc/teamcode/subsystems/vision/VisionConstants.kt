@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.subsystems.vision
 
 import org.firstinspires.ftc.vision.apriltag.AprilTagGameDatabase
 import org.firstinspires.ftc.vision.apriltag.AprilTagLibrary
-import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor
 
 object VisionConstants {
 
@@ -26,6 +25,13 @@ object VisionConstants {
         val aprilTagFieldLayoutDecode   : AprilTagLibrary   = AprilTagGameDatabase.getDecodeTagLibrary()
         val ambiguity                   : Double            = 0.18
         val maxZError                   : Double            = 0.75
+        var linearStdDevBaseline: Double = 0.02 // Meters
+        var angularStdDevBaseline: Double = 0.06 // Radians
+        var cameraStdDevFactors: DoubleArray = doubleArrayOf(
+            1.0,  // Camera 0
+        )
+        var linearStdDevMegatag2Factor: Double = 0.5 // More stable than full 3D solve
+        var angularStdDevMegatag2Factor: Double = Double.POSITIVE_INFINITY // No rotation data available
     }
 
     object Telemetry {

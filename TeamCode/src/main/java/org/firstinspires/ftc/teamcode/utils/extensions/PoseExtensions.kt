@@ -46,7 +46,7 @@ fun Pose2D.toPose(): Pose {
  * in radians.
  * @return a new [Pose2d] based of the receiver [Pose2D]
  */
-fun Pose2D.toPose2d(): Pose2d {
+fun Pose2D.toPose2dPSI(): Pose2d {
     return Pose2d(this.x, this.y, Rotation2d(this.h))
 }
 
@@ -63,6 +63,14 @@ fun Pose2d.toPose2D(): Pose2D {
         AngleUnit.RADIANS,
         this.rotation.radians
     )
+}
+
+fun Pose2d.toPose(): Pose {
+    return this.toPose2D().toPose()
+}
+
+fun org.psilynx.psikit.core.wpi.math.Pose2d.toPose2dPSI(): Pose2d {
+    return Pose2d(this.x, this.y, Rotation2d(this.rotation.radians))
 }
 
 /**

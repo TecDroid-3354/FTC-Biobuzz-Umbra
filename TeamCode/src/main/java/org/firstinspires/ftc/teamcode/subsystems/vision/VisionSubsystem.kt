@@ -4,15 +4,23 @@ import com.pedropathing.math.Matrix
 import org.firstinspires.ftc.teamcode.subsystems.vision.VisionConstants.AprilTagUtilities.aprilTagFieldLayoutDecode
 import org.firstinspires.ftc.teamcode.subsystems.vision.VisionConstants.AprilTagUtilities.ambiguity
 import org.firstinspires.ftc.teamcode.subsystems.vision.VisionConstants.AprilTagUtilities.maxZError
+import org.firstinspires.ftc.teamcode.subsystems.vision.VisionConstants.AprilTagUtilities.linearStdDevBaseline
+import org.firstinspires.ftc.teamcode.subsystems.vision.VisionConstants.AprilTagUtilities.angularStdDevBaseline
+import org.firstinspires.ftc.teamcode.subsystems.vision.VisionConstants.AprilTagUtilities.cameraStdDevFactors
+import org.firstinspires.ftc.teamcode.subsystems.vision.VisionConstants.AprilTagUtilities.linearStdDevMegatag2Factor
+import org.firstinspires.ftc.teamcode.subsystems.vision.VisionConstants.AprilTagUtilities.angularStdDevMegatag2Factor
 import org.firstinspires.ftc.teamcode.constants.FieldConstants.FIELD_LENGTH
 import org.firstinspires.ftc.teamcode.constants.FieldConstants.FIELD_WIDTH
 import com.seattlesolvers.solverslib.command.SubsystemBase
 import com.seattlesolvers.solverslib.geometry.Pose2d
+import org.firstinspires.ftc.teamcode.utils.extensions.toPose2dPSI
 import org.firstinspires.ftc.teamcode.utils.extensions.toPose3d
 import org.psilynx.psikit.core.AutoLogOutputManager
+import org.psilynx.psikit.core.Logger
 import org.psilynx.psikit.core.wpi.math.Pose3d
 import java.util.LinkedList
 import kotlin.math.abs
+import kotlin.math.pow
 
 
 class VisionSubsystem(private val visionConsumer: VisionConsumer, private vararg var io: VisionIO): SubsystemBase() {
@@ -62,9 +70,71 @@ class VisionSubsystem(private val visionConsumer: VisionConsumer, private vararg
                         || observation.pose.translation.y < 0.0
                         || observation.pose.translation.y > FIELD_WIDTH.meters
 
+                robotPoses.add(observation.pose)
+                if (rejectPose) {
+                    robotPosesRejected.add(observation.pose)
+                } else {
+                    robotPosesAccepted.add(observation.pose)
+                }
 
+                if (rejectPose) {
+                    continue
+                }
+
+                val stdDevFactor    = observation.averageTagDistance.pow(2.0) / observation.tagCount
+                var linearStdDev    = linearStdDevBaseline * stdDevFactor
+                var angularStdDev   = angularStdDevBaseline * stdDevFactor
+
+                if (observation.type == VisionIO.PoseObservationType.MEGATAG_2) {
+                    linearStdDev *= linearStdDevMegatag2Factor
+                    angularStdDev *= angularStdDevMegatag2Factor
+                }
+                if (cameraIndex < cameraStdDevFactors.size) {
+                    linearStdDev *= cameraStdDevFactors[cameraIndex]
+                    angularStdDev *= cameraStdDevFactors[cameraIndex]
+                }
+
+                val stdDev = Matrix(3, 1)
+                stdDev.set(1, 1, linearStdDev)
+                stdDev.set(2, 1, linearStdDev)
+                stdDev.set(3, 1, angularStdDev)
+
+                visionConsumer.accept(
+                    observation.pose.toPose2d().toPose2dPSI(),
+                    observation.timestamp,
+                    stdDev
+                )
             }
+
+            // Log camera datadata
+            Logger.recordOutput(
+                "Vision/Camera$cameraIndex/TagPoses",
+                tagPoses.toArray(arrayOfNulls<Pose3d>(tagPoses.size)))
+            Logger.recordOutput(
+                "Vision/Camera$cameraIndex/RobotPoses",
+                robotPoses.toArray(arrayOfNulls<Pose3d>(robotPoses.size)))
+            Logger.recordOutput(
+                "Vision/Camera$cameraIndex/RobotPosesAccepted",
+                robotPosesAccepted.toArray(arrayOfNulls<Pose3d>(robotPosesAccepted.size)))
+            Logger.recordOutput(
+                "Vision/Camera$cameraIndex/RobotPosesRejected",
+                robotPosesRejected.toArray(arrayOfNulls<Pose3d>(robotPosesRejected.size)))
+
+            allTagPoses.addAll(tagPoses)
+            allRobotPoses.addAll(robotPoses)
+            allRobotPosesAccepted.addAll(robotPosesAccepted)
+            allRobotPosesRejected.addAll(robotPosesRejected)
         }
+
+        // Log summary data
+        Logger.recordOutput("Vision/Summary/TagPoses", allTagPoses.toArray(arrayOfNulls<Pose3d>(allTagPoses.size)))
+        Logger.recordOutput("Vision/Summary/RobotPoses", allRobotPoses.toArray(arrayOfNulls<Pose3d>(allRobotPoses.size)))
+        Logger.recordOutput(
+            "Vision/Summary/RobotPosesAccepted",
+            allRobotPosesAccepted.toArray(arrayOfNulls<Pose3d>(allRobotPosesAccepted.size)))
+        Logger.recordOutput(
+            "Vision/Summary/RobotPosesRejected",
+            allRobotPosesRejected.toArray(arrayOfNulls<Pose3d>(allRobotPosesRejected.size)))
     }
 
 

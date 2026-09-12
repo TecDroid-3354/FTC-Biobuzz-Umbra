@@ -15,6 +15,8 @@ import kotlin.math.PI
             fun fromInches(inches: Double)                      : Distance              = Distance(inches * 0.0254)
             @JvmStatic
             fun fromMeters(meters: Double)                      : Distance              = Distance(meters)
+            @JvmStatic
+            fun fromMillimeters(mm: Double)                     : Distance              = Distance(mm / 1000)
         }
 
         val cm              : Double get() = meters * 100.0

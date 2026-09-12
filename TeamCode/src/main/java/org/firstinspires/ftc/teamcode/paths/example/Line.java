@@ -17,12 +17,12 @@ public class Line extends MirrorPaths {
     public Line(Follower follower, Alliance alliance) {
         super(alliance);
 
-        startingPose = mirror(new Pose(56.000, 36.000, Math.toRadians(90)));
+        startingPose = mirror(new Pose(0.000, 36.000, Math.toRadians(90)));
 
         Path1 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                mirror(new Pose(56.000, 36.000)),
-                                mirror(new Pose(84.000, 36.000))
+                                mirror(new Pose(0.000, 36.000)),
+                                mirror(new Pose(48.000, 36.000))
                         )
                 ).setLinearHeadingInterpolation(mirrorHeading(Angle.fromDegrees(90)), mirrorHeading(Angle.fromDegrees(180)))
                 .build();
