@@ -1,10 +1,8 @@
-package org.firstinspires.ftc.teamcode.subsystems.tankDrive
+package org.firstinspires.ftc.teamcode.subsystems.Subsystems.Chasis
 
-import java.util.function.DoubleSupplier
 import androidx.core.util.Supplier
 import com.qualcomm.robotcore.hardware.HardwareMap
 import com.qualcomm.robotcore.util.ElapsedTime
-
 import com.seattlesolvers.solverslib.command.Command
 import com.seattlesolvers.solverslib.command.InstantCommand
 import com.seattlesolvers.solverslib.command.RunCommand
@@ -18,13 +16,13 @@ import com.seattlesolvers.solverslib.kinematics.wpilibkinematics.DifferentialDri
 import com.seattlesolvers.solverslib.kinematics.wpilibkinematics.DifferentialDriveOdometry
 import com.seattlesolvers.solverslib.kinematics.wpilibkinematics.DifferentialDriveWheelSpeeds
 import com.seattlesolvers.solverslib.trajectory.Trajectory
-
 import org.firstinspires.ftc.teamcode.utils.Angle
 import org.firstinspires.ftc.teamcode.utils.AngularVelocity
-import org.firstinspires.ftc.teamcode.utils.LinearVelocity
 import org.firstinspires.ftc.teamcode.utils.Distance
+import org.firstinspires.ftc.teamcode.utils.LinearVelocity
 import org.firstinspires.ftc.teamcode.utils.configurations.motorControlModeConfiguration.MotorVelocityModeConfiguration
 import org.firstinspires.ftc.teamcode.utils.devices.OpMotorEx
+import java.util.function.DoubleSupplier
 import kotlin.math.abs
 
 class TankDrive(
@@ -38,7 +36,8 @@ class TankDrive(
     lateinit var leftMotor: OpMotorEx
 
     // ------ Kinematics and Odometry Initialization ------ //
-    private val kinematics = DifferentialDriveKinematics(TankDriveConstants.PhysicalCharacteristics.TRACK_WIDTH.meters)
+    private val kinematics =
+        DifferentialDriveKinematics(TankDriveConstants.PhysicalCharacteristics.TRACK_WIDTH.meters)
 
     private val odometry = DifferentialDriveOdometry(
         Rotation2d(rotationSupplier.get().radians),
@@ -73,7 +72,7 @@ class TankDrive(
     }
 
     /**
-     * Set a [ChassisSpeeds] to our chassis
+     * Set a [com.seattlesolvers.solverslib.kinematics.wpilibkinematics.ChassisSpeeds] to our chassis
      */
     private fun runVelocity(speeds: ChassisSpeeds) {
         // Chassis speeds to wheel speeds
@@ -89,7 +88,12 @@ class TankDrive(
     }
 
     private fun runVelocity(leftVelocity: LinearVelocity, rightVelocity: LinearVelocity) {
-        val speeds = kinematics.toChassisSpeeds(DifferentialDriveWheelSpeeds(leftVelocity.mps, rightVelocity.mps))
+        val speeds = kinematics.toChassisSpeeds(
+            DifferentialDriveWheelSpeeds(
+                leftVelocity.mps,
+                rightVelocity.mps
+            )
+        )
         runVelocity(speeds)
     }
 
@@ -97,13 +101,15 @@ class TankDrive(
      * Run a [ChassisSpeeds] taking into account the max velocity
      * @param forward the forward velocity obtained from the joystick
      * @param turn the turn velocity obtained from the joystick
-     * @return a [RunCommand]
+     * @return a [com.seattlesolvers.solverslib.command.RunCommand]
      */
     fun driveCMD(forward: DoubleSupplier, turn: DoubleSupplier): Command {
         return RunCommand({
             // Taking into account the maximum chassis velocity
-            val forwardVelocity = forward.asDouble * TankDriveConstants.PhysicalCharacteristics.LINEAR_VELOCITY.mps * TankDriveConstants.Control.FORWARD_MULTIPLIER
-            val turnVelocity = turn.asDouble * TankDriveConstants.PhysicalCharacteristics.ANGULAR_VELOCITY.radPerSec * TankDriveConstants.Control.TURN_MULTIPLIER
+            val forwardVelocity =
+                forward.asDouble * TankDriveConstants.PhysicalCharacteristics.LINEAR_VELOCITY.mps * TankDriveConstants.Control.FORWARD_MULTIPLIER
+            val turnVelocity =
+                turn.asDouble * TankDriveConstants.PhysicalCharacteristics.ANGULAR_VELOCITY.radPerSec * TankDriveConstants.Control.TURN_MULTIPLIER
 
             runVelocity(
                 ChassisSpeeds(
@@ -129,12 +135,12 @@ class TankDrive(
     }
 
     /**
-     * Common [Command] to follow any [Trajectory] with a [TankDrive] type of drivetrain.
+     * Common [Command] to follow any [com.seattlesolvers.solverslib.trajectory.Trajectory] with a [TankDrive] type of drivetrain.
      * It is preferred to follow only straight paths and use the [turnToAngle] command to rotate instead.
      * Creates a timer which will be reset each time the command is called.
-     * Based on the elapsed time, a sample from the [Trajectory] will be passed into the [ramseteController]
+     * Based on the elapsed time, a sample from the [com.seattlesolvers.solverslib.trajectory.Trajectory] will be passed into the [ramseteController]
      * and given to a drive velocity function.
-     * @param trajectory the desired [Trajectory] to follow
+     * @param trajectory the desired [com.seattlesolvers.solverslib.trajectory.Trajectory] to follow
      * @return a [RunCommand] which follows the trajectory
      */
     fun ramsetteCommand(trajectory: Trajectory): Command {
@@ -148,7 +154,7 @@ class TankDrive(
             runVelocity(desiredSpeeds)
         })
             .addRequirements(this)
-            .beforeStarting(InstantCommand({ timer.reset() }) )
+            .beforeStarting(InstantCommand({ timer.reset() }))
             .interruptOn { timer.seconds() >= trajectory.totalTimeSeconds }
             .whenFinished { runVelocity(ChassisSpeeds()) }
     }
@@ -157,22 +163,24 @@ class TankDrive(
      * Requests the [TankDrive] to turn to a certain [Angle].
      * Receives an [Angle] and based on the current angle, it applies power through the [turnController].
      * Then, the desired output is torn into a velocity using the max [TankDriveConstants.PhysicalCharacteristics.ANGULAR_VELOCITY].
-     * The [AngularVelocity] is converted into a [LinearVelocity] using the [TankDriveConstants.PhysicalCharacteristics.TRACK_WIDTH].
+     * The [org.firstinspires.ftc.teamcode.utils.AngularVelocity] is converted into a [LinearVelocity] using the [TankDriveConstants.PhysicalCharacteristics.TRACK_WIDTH].
      * Ends when the angular error is less than 2.0 degrees.
      * @param angle the desired angle to turn to.
      * @return A [RunCommand] which turns the robot the desired [angle]
      */
     fun turnToAngle(angle: Angle): Command {
         return RunCommand({
-            val power = turnController.calculate(angle.degrees, odometry.poseMeters.rotation.degrees)
-            val velocity = power * TankDriveConstants.PhysicalCharacteristics.ANGULAR_VELOCITY.radPerSec
+            val power =
+                turnController.calculate(angle.degrees, odometry.poseMeters.rotation.degrees)
+            val velocity =
+                power * TankDriveConstants.PhysicalCharacteristics.ANGULAR_VELOCITY.radPerSec
             val linearVelocity = AngularVelocity.fromRadPerSec(velocity)
                 .toLinearVelocity(TankDriveConstants.PhysicalCharacteristics.TRACK_WIDTH)
             runVelocity(LinearVelocity(0.0).minus(linearVelocity), linearVelocity)
         })
             .addRequirements(this)
             .beforeStarting(InstantCommand({ turnController.reset() }))
-            .interruptOn { abs(angle .degrees - odometry.poseMeters.rotation.degrees) < 2.0 }
+            .interruptOn { abs(angle.degrees - odometry.poseMeters.rotation.degrees) < 2.0 }
             .whenFinished { runVelocity(ChassisSpeeds()) }
     }
 
@@ -185,15 +193,15 @@ class TankDrive(
     }
 
     /**
-     * Get the motor's encoder [Distance] useful to update odometry
+     * Get the motor's encoder [org.firstinspires.ftc.teamcode.utils.Distance] useful to update odometry
      * @param motor the desired motor to get the distance traveled from.
      * @return the motor's traveled distance
      */
     private fun getEncoderDistance(motor: OpMotorEx): Distance {
         // Wheel's traveled angle
-        val wheelTraveledAngle      : Angle     = motor.getPosition().get()
+        val wheelTraveledAngle      : Angle = motor.getPosition().get()
         // Angle to distance using wheel radius
-        val wheelTraveledDistance   : Distance  = wheelTraveledAngle.toDistance(TankDriveConstants.PhysicalCharacteristics.WHEEL_RADIUS)
+        val wheelTraveledDistance   : Distance = wheelTraveledAngle.toDistance(TankDriveConstants.PhysicalCharacteristics.WHEEL_RADIUS)
         // Transform to robot
         return  wheelTraveledDistance
     }
@@ -212,7 +220,12 @@ class TankDrive(
         val leftVelocity = leftMotor.getVelocity().get().toLinearVelocity(TankDriveConstants.PhysicalCharacteristics.WHEEL_RADIUS)
         val rightVelocity = rightMotor.getVelocity().get().toLinearVelocity(TankDriveConstants.PhysicalCharacteristics.WHEEL_RADIUS)
 
-        val speed = kinematics.toChassisSpeeds(DifferentialDriveWheelSpeeds(leftVelocity.mps, rightVelocity.mps))
+        val speed = kinematics.toChassisSpeeds(
+            DifferentialDriveWheelSpeeds(
+                leftVelocity.mps,
+                rightVelocity.mps
+            )
+        )
 
         return speed
     }
@@ -233,7 +246,8 @@ class TankDrive(
                 .withFeedforwardCoefficients(TankDriveConstants.Tunables.rightDriveFeedForward)
         )
 
-        ramseteController = RamseteController(TankDriveConstants.Autonomous.b, TankDriveConstants.Autonomous.zeta)
+        ramseteController =
+            RamseteController(TankDriveConstants.Autonomous.b, TankDriveConstants.Autonomous.zeta)
     }
 
     fun configureMotor() {

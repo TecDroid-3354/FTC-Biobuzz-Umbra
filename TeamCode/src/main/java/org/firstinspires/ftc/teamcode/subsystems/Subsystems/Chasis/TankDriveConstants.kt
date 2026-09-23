@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.subsystems.tankDrive
+package org.firstinspires.ftc.teamcode.subsystems.Subsystems.Chasis
 
 import com.bylazar.configurables.annotations.Configurable
 import com.qualcomm.robotcore.hardware.PIDCoefficients
@@ -89,7 +89,7 @@ object TankDriveConstants {
     @Configurable
     object Autonomous {
         @JvmField
-        var b           : Double = 10.0
+        var             : Double = 10.0
         @JvmField
         var zeta        : Double = 0.7
         @JvmField
