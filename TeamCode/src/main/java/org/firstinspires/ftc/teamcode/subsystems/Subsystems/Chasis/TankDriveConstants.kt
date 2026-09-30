@@ -89,7 +89,7 @@ object TankDriveConstants {
     @Configurable
     object Autonomous {
         @JvmField
-        var             : Double = 10.0
+        var b: Double = 10.0
         @JvmField
         var zeta        : Double = 0.7
         @JvmField
