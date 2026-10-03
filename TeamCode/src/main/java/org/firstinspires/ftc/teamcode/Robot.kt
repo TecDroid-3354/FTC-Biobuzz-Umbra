@@ -6,11 +6,16 @@ import com.pedropathing.paths.PathChain
 import com.pedropathing.paths.PathPoint
 import com.qualcomm.robotcore.hardware.HardwareMap
 import com.seattlesolvers.solverslib.command.Command
+import com.seattlesolvers.solverslib.command.InstantCommand
 import com.seattlesolvers.solverslib.gamepad.GamepadEx
 import org.firstinspires.ftc.robotcore.external.Telemetry
+import org.firstinspires.ftc.teamcode.subsystems.Subsystems.Intake.Intake
 
 import org.firstinspires.ftc.teamcode.utils.Alliance
 import org.firstinspires.ftc.teamcode.utils.TecDroidRobot
+import org.firstinspires.ftc.teamcode.utils.extensions.a
+import org.firstinspires.ftc.teamcode.utils.extensions.onFalse
+import org.firstinspires.ftc.teamcode.utils.extensions.onTrue
 
 
 class Robot(
@@ -24,14 +29,16 @@ class Robot(
     private lateinit var follower: Follower
     /* Declare your subsystems here */
 
+  lateinit var intake: Intake
     init {
+
         subsystemInitialization()
     }
 
     /* Initialize your subsystems and follower here */
     override fun subsystemInitialization() {
         // Follower initialization
-
+        intake = Intake (hardwareMap)
         // Subsystem initialization
     }
 
@@ -44,6 +51,9 @@ class Robot(
 
         // Build Commands:
         // controller.button().onTrue(Command)
+        controller.a()
+            .onTrue (InstantCommand( { intake.enableintake() } ))
+            .onFalse  (InstantCommand( { intake.disableintake() } ))
     }
 
     /* Initialize your auto commands here, set chassis alliance and starting pose */
