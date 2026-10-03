@@ -8,9 +8,14 @@ import com.qualcomm.robotcore.hardware.HardwareMap
 import com.seattlesolvers.solverslib.command.Command
 import com.seattlesolvers.solverslib.gamepad.GamepadEx
 import org.firstinspires.ftc.robotcore.external.Telemetry
+import org.firstinspires.ftc.teamcode.subsystems.Subsystems.ShooterRoller.ShooterRoller
 
 import org.firstinspires.ftc.teamcode.utils.Alliance
+import org.firstinspires.ftc.teamcode.utils.AngularVelocity
 import org.firstinspires.ftc.teamcode.utils.TecDroidRobot
+import org.firstinspires.ftc.teamcode.utils.extensions.onFalse
+import org.firstinspires.ftc.teamcode.utils.extensions.onTrue
+import org.firstinspires.ftc.teamcode.utils.extensions.rightTrigger
 
 
 class Robot(
@@ -23,6 +28,11 @@ class Robot(
     /* Declare your Pedro Pathing's Follower here */
     private lateinit var follower: Follower
     /* Declare your subsystems here */
+    lateinit var shooterRoller: ShooterRoller
+
+
+
+
 
     init {
         subsystemInitialization()
@@ -31,7 +41,7 @@ class Robot(
     /* Initialize your subsystems and follower here */
     override fun subsystemInitialization() {
         // Follower initialization
-
+          shooterRoller = ShooterRoller (hardwareMap)
         // Subsystem initialization
     }
 
@@ -44,6 +54,10 @@ class Robot(
 
         // Build Commands:
         // controller.button().onTrue(Command)
+        controller.rightTrigger()
+            .onTrue (shooterRoller.setShooterVelocityCMD(AngularVelocity.fromRps(33.0)))
+            .onFalse (shooterRoller.setShooterVelocityCMD(AngularVelocity.fromRps(0.0)))
+    // ese valor no ah sido probado
     }
 
     /* Initialize your auto commands here, set chassis alliance and starting pose */
@@ -70,4 +84,8 @@ class Robot(
     override fun followPathCMD(path: PathChain, holdEnd: Boolean, maxPower: Double): Command {
         return TODO() //Yet to be implemented
     }
+
+
+
+
 }
