@@ -11,6 +11,8 @@ import com.seattlesolvers.solverslib.hardware.motors.Motor
 object CatapultConstants {
 
 
+
+
     object Identification {
         val rightMotorID = "Motor1"
         val leftMotorID = "Motor2"
@@ -22,5 +24,18 @@ object CatapultConstants {
         val zeroPowerBehavior = Motor.ZeroPowerBehavior.FLOAT
         val rightInverted = true
         val leftInverted = false
+        val conversion = 28/360
     }
-}
+
+    
+    
+
+    object Positions{
+
+        var shootPosition  = Configuration.conversion * 75
+        var returnPosition = Configuration.conversion * 0
+    }
+    }
+    
+    
+

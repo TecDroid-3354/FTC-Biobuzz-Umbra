@@ -9,16 +9,16 @@ import org.firstinspires.ftc.teamcode.utils.AngularVelocity
 
 
 abstract class Catapult(hardwareMap: HardwareMap): SubsystemBase() {
+
     private val rightMotor: MotorEx
-    private val leftMotor: MotorEx = MotorEx(hardwareMap, CatapultConstants.Identification.leftMotorID)
+    private val leftMotor: MotorEx
 
 
     init {
+        leftMotor=  MotorEx(hardwareMap, CatapultConstants.Identification.leftMotorID)
         leftMotor.setInverted(CatapultConstants.Configuration.leftInverted)
         leftMotor.setRunMode(CatapultConstants.Configuration.runMode)
         leftMotor.setZeroPowerBehavior(CatapultConstants.Configuration.zeroPowerBehavior)
-
-
 
 
         rightMotor = MotorEx(hardwareMap, CatapultConstants.Identification.rightMotorID)
@@ -33,11 +33,25 @@ abstract class Catapult(hardwareMap: HardwareMap): SubsystemBase() {
         val velocityInTicks=limitedVelocity * 28.0
         rightMotor.velocity= velocityInTicks
         leftMotor.velocity= velocityInTicks
-    }
+
+
+        }
+
     fun getVelocity(): AngularVelocity{
-        return AngularVelocity(rightMotor.velocity/28.0)
+        return AngularVelocity(leftMotor.velocity/28.0)
     }
 
+    fun returnToOrigin(){
+        rightMotor.setTargetPosition(CatapultConstants.Positions.returnPosition)
+        leftMotor.setTargetPosition(CatapultConstants.Positions.returnPosition)
+    }
+    fun shoot(){
 
-    abstract fun angulos (angulos: Double): Unit
+        rightMotor.setTargetPosition(CatapultConstants.Positions.shootPosition)
+
+    }
 }
+
+
+
+
