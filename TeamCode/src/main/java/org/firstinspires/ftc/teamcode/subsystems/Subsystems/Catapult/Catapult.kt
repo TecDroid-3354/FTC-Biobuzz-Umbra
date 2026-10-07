@@ -28,7 +28,7 @@ abstract class Catapult(hardwareMap: HardwareMap): SubsystemBase() {
     }
 
 
-    private fun setVelocity(velocity: AngularVelocity){
+    private fun setVelocity (velocity: AngularVelocity){
         val limitedVelocity=velocity.rps.coerceIn(-100.00,100.00)
         val velocityInTicks=limitedVelocity * 28.0
         rightMotor.velocity= velocityInTicks
@@ -43,11 +43,14 @@ abstract class Catapult(hardwareMap: HardwareMap): SubsystemBase() {
 
     fun returnToOrigin(){
         rightMotor.setTargetPosition(CatapultConstants.Positions.returnPosition)
+        rightMotor.setTargetPosition(CatapultConstants.Positions.returnPosition)
+        leftMotor.setTargetPosition(CatapultConstants.Positions.returnPosition)
         leftMotor.setTargetPosition(CatapultConstants.Positions.returnPosition)
     }
     fun shoot(){
-
+setVelocity(AngularVelocity(15.0))//la velocidad no esta definida
         rightMotor.setTargetPosition(CatapultConstants.Positions.shootPosition)
+        leftMotor.setTargetPosition(CatapultConstants.Positions.shootPosition)
 
     }
 }
