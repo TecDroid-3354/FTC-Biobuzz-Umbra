@@ -10,9 +10,14 @@ import com.seattlesolvers.solverslib.command.InstantCommand
 import com.seattlesolvers.solverslib.gamepad.GamepadEx
 import org.firstinspires.ftc.robotcore.external.Telemetry
 import org.firstinspires.ftc.teamcode.subsystems.Subsystems.Intake.Intake
+import org.firstinspires.ftc.teamcode.subsystems.Subsystems.ShooterRoller.ShooterRoller
 
 import org.firstinspires.ftc.teamcode.utils.Alliance
+import org.firstinspires.ftc.teamcode.utils.AngularVelocity
 import org.firstinspires.ftc.teamcode.utils.TecDroidRobot
+import org.firstinspires.ftc.teamcode.utils.extensions.onFalse
+import org.firstinspires.ftc.teamcode.utils.extensions.onTrue
+import org.firstinspires.ftc.teamcode.utils.extensions.rightTrigger
 import org.firstinspires.ftc.teamcode.utils.extensions.a
 import org.firstinspires.ftc.teamcode.utils.extensions.onFalse
 import org.firstinspires.ftc.teamcode.utils.extensions.onTrue
@@ -28,6 +33,7 @@ class Robot(
     /* Declare your Pedro Pathing's Follower here */
     private lateinit var follower: Follower
     /* Declare your subsystems here */
+    lateinit var shooterRoller: ShooterRoller
 
   lateinit var intake: Intake
     init {
@@ -38,7 +44,7 @@ class Robot(
     /* Initialize your subsystems and follower here */
     override fun subsystemInitialization() {
         // Follower initialization
-        intake = Intake (hardwareMap)
+
         // Subsystem initialization
     }
 
@@ -52,8 +58,12 @@ class Robot(
         // Build Commands:
         // controller.button().onTrue(Command)
         controller.a()
-            .onTrue (InstantCommand( { intake.enableintake() } ))
+            .onTrue (InstantCommand({ intake.enableintake() }))
             .onFalse  (InstantCommand( { intake.disableintake() } ))
+        controller.rightTrigger()
+            .onTrue (shooterRoller.setShooterVelocityCMD(AngularVelocity.fromRps(33.0)))
+            .onFalse (shooterRoller.setShooterVelocityCMD(AngularVelocity.fromRps(0.0)))
+    // ese valor no ah sido probado
     }
 
     /* Initialize your auto commands here, set chassis alliance and starting pose */
@@ -80,4 +90,8 @@ class Robot(
     override fun followPathCMD(path: PathChain, holdEnd: Boolean, maxPower: Double): Command {
         return TODO() //Yet to be implemented
     }
+
+
+
+
 }
