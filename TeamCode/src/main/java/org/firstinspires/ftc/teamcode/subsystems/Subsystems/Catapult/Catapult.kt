@@ -2,13 +2,18 @@ package org.firstinspires.ftc.teamcode.subsystems.Subsystems.Catapult
 
 
 import com.qualcomm.robotcore.hardware.HardwareMap
+import com.seattlesolvers.solverslib.command.Command
+import com.seattlesolvers.solverslib.command.InstantCommand
+import com.seattlesolvers.solverslib.command.RunCommand
 import com.seattlesolvers.solverslib.command.SubsystemBase
+import com.seattlesolvers.solverslib.command.button.Trigger
+import com.seattlesolvers.solverslib.gamepad.GamepadEx
 import com.seattlesolvers.solverslib.hardware.motors.MotorEx
-import org.firstinspires.ftc.robotcore.external.navigation.Velocity
 import org.firstinspires.ftc.teamcode.utils.AngularVelocity
+import org.firstinspires.ftc.teamcode.utils.extensions.rightTrigger
 
 
-abstract class Catapult(hardwareMap: HardwareMap): SubsystemBase() {
+class Catapult(hardwareMap: HardwareMap): SubsystemBase() {
 
     private val rightMotor: MotorEx
     private val leftMotor: MotorEx
@@ -41,18 +46,22 @@ abstract class Catapult(hardwareMap: HardwareMap): SubsystemBase() {
         return AngularVelocity(leftMotor.velocity/28.0)
     }
 
-    fun returnToOrigin(){
+    private fun returnToOrigin(){
         rightMotor.setTargetPosition(CatapultConstants.Positions.returnPosition)
         rightMotor.setTargetPosition(CatapultConstants.Positions.returnPosition)
         leftMotor.setTargetPosition(CatapultConstants.Positions.returnPosition)
         leftMotor.setTargetPosition(CatapultConstants.Positions.returnPosition)
     }
-    fun shoot(){
-setVelocity(AngularVelocity(15.0))//la velocidad no esta definida
-        rightMotor.setTargetPosition(CatapultConstants.Positions.shootPosition)
-        leftMotor.setTargetPosition(CatapultConstants.Positions.shootPosition)
+    private fun shoot() {
+         setVelocity(AngularVelocity(15.0))//la velocidad no esta definida
+         rightMotor.setTargetPosition(CatapultConstants.Positions.shootPosition)
+         leftMotor.setTargetPosition(CatapultConstants.Positions.shootPosition)
+     }
 
+    fun shootCMD () : Command {
+        return InstantCommand({shoot()})
     }
+
 }
 
 

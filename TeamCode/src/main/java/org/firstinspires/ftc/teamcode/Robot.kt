@@ -8,9 +8,13 @@ import com.qualcomm.robotcore.hardware.HardwareMap
 import com.seattlesolvers.solverslib.command.Command
 import com.seattlesolvers.solverslib.gamepad.GamepadEx
 import org.firstinspires.ftc.robotcore.external.Telemetry
+import org.firstinspires.ftc.teamcode.subsystems.Subsystems.Catapult.Catapult
 
 import org.firstinspires.ftc.teamcode.utils.Alliance
 import org.firstinspires.ftc.teamcode.utils.TecDroidRobot
+import org.firstinspires.ftc.teamcode.utils.extensions.onFalse
+import org.firstinspires.ftc.teamcode.utils.extensions.onTrue
+import org.firstinspires.ftc.teamcode.utils.extensions.rightTrigger
 
 
 class Robot(
@@ -24,12 +28,19 @@ class Robot(
     private lateinit var follower: Follower
     /* Declare your subsystems here */
 
+    private lateinit var catapult: Catapult
+
+
+
+
     init {
         subsystemInitialization()
+
     }
 
     /* Initialize your subsystems and follower here */
     override fun subsystemInitialization() {
+        catapult= Catapult(hardwareMap)
         // Follower initialization
 
         // Subsystem initialization
@@ -43,6 +54,7 @@ class Robot(
         // Chassis default command
 
         // Build Commands:
+        controller.rightTrigger().onTrue(catapult.shootCMD())
         // controller.button().onTrue(Command)
     }
 
