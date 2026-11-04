@@ -21,11 +21,7 @@ class Intake(val hardwareMap: HardwareMap) {
     fun disableintake(){
         motor.set(0.0)
     }
-   fun enableintakeCMD(): Command{
-       return InstantCommand({enableintake()})
-   }
-    fun disableintakeCMD(): Command{
-        return InstantCommand({disableintake()})
-}
 
 }
+
+

@@ -13,6 +13,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Subsystems.Intake.Intake
 import org.firstinspires.ftc.teamcode.subsystems.Subsystems.IntakePatita.IntakePatita
 import org.firstinspires.ftc.teamcode.subsystems.Subsystems.IntakePatita.IntakePatitaConstants
 import org.firstinspires.ftc.teamcode.subsystems.Subsystems.ShooterRoller.ShooterRoller
+import org.firstinspires.ftc.teamcode.subsystems.Subsystems.Systems.Superstructure
 
 import org.firstinspires.ftc.teamcode.utils.Alliance
 import org.firstinspires.ftc.teamcode.utils.AngularVelocity
@@ -24,6 +25,8 @@ import org.firstinspires.ftc.teamcode.utils.extensions.a
 import org.firstinspires.ftc.teamcode.utils.extensions.b
 import org.firstinspires.ftc.teamcode.utils.extensions.onFalse
 import org.firstinspires.ftc.teamcode.utils.extensions.onTrue
+import org.firstinspires.ftc.teamcode.utils.extensions.x
+import org.firstinspires.ftc.teamcode.utils.extensions.y
 
 
 class Robot(
@@ -39,10 +42,12 @@ class Robot(
     lateinit var shooterRoller: ShooterRoller
     lateinit var intakePatita : IntakePatita
   lateinit var intake: Intake
-    init {
+  val superstructure: Superstructure
 
+    init {
+        superstructure = Superstructure(hardwareMap)
         subsystemInitialization()
-    }
+         }
 
     /* Initialize your subsystems and follower here */
     override fun subsystemInitialization() {
@@ -61,20 +66,20 @@ class Robot(
         // Build Commands:
         // controller.button().onTrue(Command)
         controller.a()
-            .onTrue (InstantCommand({ intake.enableintake() }))
-            .onFalse  (InstantCommand( { intake.disableintake() } ))
+            .onTrue (InstantCommand({ superstructure.intakePollenSequence() }))
+            .onFalse  (InstantCommand( { superstructure.stopIntakePollenSequence() } ))
         controller.rightTrigger()
-            .onTrue (shooterRoller.setShooterVelocityCMD(AngularVelocity.fromRps(33.0)))
-            .onFalse (shooterRoller.setShooterVelocityCMD(AngularVelocity.fromRps(0.0)))
-    // ese valor no ah sido probado
+            .onTrue (InstantCommand({ superstructure.shootSequence()}))
+            .onFalse  (InstantCommand( { superstructure.stopShootSequence()}))
         controller.b()
-            .onTrue(InstantCommand({
-                intakePatita.IntakeDeployAngle(IntakePatitaConstants.Mechanical.INTAKE_PATITA_LIMITS.endInclusive)
-              })
-            )
-            .onFalse(InstantCommand({
-                intakePatita.IntakeDeployAngle(IntakePatitaConstants.Mechanical.INTAKE_PATITA_LIMITS.start) }))
-
+            .onTrue(InstantCommand({superstructure.raisePatitaCMD()}))
+            .onFalse(InstantCommand({superstructure.closePatitaCMD()}))
+        controller.x()
+            .onTrue(InstantCommand({superstructure.enableintakeCMD()}))
+            .onFalse(InstantCommand({superstructure.disableintakeCMD()}))
+        controller.y()
+            .onTrue(InstantCommand({superstructure.enableCatapultCMD()}))
+            .onFalse(InstantCommand({superstructure.disableCatapultCMD()}))
             }
     /* Initialize your auto commands here, set chassis alliance and starting pose */
     override fun initAuto(startingPose: Pose) {

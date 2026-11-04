@@ -19,6 +19,9 @@ object IntakePatitaConstants {
         val TARGET_ANGLE_THRESHOLD = Angle.fromDegrees(20.0)
         val SERVO_RANGE = Angle.fromDegrees(270.0)
         val INTAKE_PATITA_LIMITS = Angle.fromDegrees(0.0) ..Angle(90.0)
+
+        val DEPLOY_ANGLE = Angle .fromDegrees(0.27)// TODO()el angulo todavia no esta definido
+        val UNLOADED_ANGLE = Angle .fromDegrees(90.0)
     }
 
     object Configuration{
