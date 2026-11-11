@@ -28,7 +28,7 @@ import kotlin.math.min
 class OpMotorEx(hardwareMap: HardwareMap, motorId: String) {
 
     // ----- Motor and Control Mode variable's creation ----- //
-    private var motor                  : MotorEx
+     var motor                  : MotorEx
     private var controlMode            : MotorControlMode = MotorControlMode.UNKNOWN
     // ----- Useful variables, avoids repetition ----- //
     private var countPerRev                     : Double = 28.0

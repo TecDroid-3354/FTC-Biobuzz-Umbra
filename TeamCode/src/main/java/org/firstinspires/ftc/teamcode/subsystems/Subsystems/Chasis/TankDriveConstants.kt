@@ -5,6 +5,8 @@ import com.qualcomm.robotcore.hardware.PIDCoefficients
 import com.qualcomm.robotcore.hardware.PIDFCoefficients
 import com.seattlesolvers.solverslib.controller.wpilibcontroller.SimpleMotorFeedforward
 import com.seattlesolvers.solverslib.hardware.motors.Motor
+import com.seattlesolvers.solverslib.trajectory.Trajectory
+import com.seattlesolvers.solverslib.trajectory.TrajectoryConfig
 import org.firstinspires.ftc.teamcode.utils.AngularVelocity
 import org.firstinspires.ftc.teamcode.utils.Distance
 import org.firstinspires.ftc.teamcode.utils.LinearVelocity
@@ -78,6 +80,7 @@ object TankDriveConstants {
             OpMotorExConfiguration()
                 .withGenericMotorConfiguration(leftMotorGenericConfiguration)
                 .withControlModeConfiguration(leftMotorModeConfiguration)
+
     }
 
     object Control {
@@ -88,6 +91,9 @@ object TankDriveConstants {
 
     @Configurable
     object Autonomous {
+        private val maxAcelerationInAuto = LinearVelocity .fromMps(0.0)//TODO define max aceleration
+        private val maxSpeedInAuto = LinearVelocity.fromMps(0.0)//TODO define max speed
+        val trajectoryConfig = TrajectoryConfig(maxSpeedInAuto.mps,maxAcelerationInAuto.mps)
         @JvmField
         var b: Double = 10.0
         @JvmField

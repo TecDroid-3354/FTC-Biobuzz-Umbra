@@ -1,10 +1,12 @@
 package org.firstinspires.ftc.teamcode.subsystems.Subsystems.Chasis
 
 import androidx.core.util.Supplier
+import com.pedropathing.math.Kinematics
 import com.qualcomm.robotcore.hardware.HardwareMap
 import com.qualcomm.robotcore.util.ElapsedTime
 import com.seattlesolvers.solverslib.command.Command
 import com.seattlesolvers.solverslib.command.InstantCommand
+import com.seattlesolvers.solverslib.command.RamseteCommand
 import com.seattlesolvers.solverslib.command.RunCommand
 import com.seattlesolvers.solverslib.command.SubsystemBase
 import com.seattlesolvers.solverslib.controller.PIDFController
@@ -22,6 +24,7 @@ import org.firstinspires.ftc.teamcode.utils.Distance
 import org.firstinspires.ftc.teamcode.utils.LinearVelocity
 import org.firstinspires.ftc.teamcode.utils.configurations.motorControlModeConfiguration.MotorVelocityModeConfiguration
 import org.firstinspires.ftc.teamcode.utils.devices.OpMotorEx
+import java.util.function.BiConsumer
 import java.util.function.DoubleSupplier
 import kotlin.math.abs
 
@@ -55,6 +58,11 @@ class TankDrive(
      */
     init {
         configureMotor()
+    }
+    val velocityBitConsumer = BiConsumer<Double, Double>{
+        leftVel, rightVel ->
+        rightMotor.motor.set(rightVel)
+        leftMotor.motor.set(leftVel)
     }
 
     /**
@@ -121,6 +129,12 @@ class TankDrive(
         })
             .addRequirements(this)
     }
+    fun ramsetCommand(trajectory: Trajectory): Command{
+        return RamseteCommand(
+            trajectory, getPose(), ramseteController,kinematics,velocityBitConsumer
+        )
+    }
+
 
     /**
      * Runs a desired [ChassisSpeeds] as a [RunCommand]
@@ -132,31 +146,6 @@ class TankDrive(
             runVelocity(speeds)
         })
             .addRequirements(this)
-    }
-
-    /**
-     * Common [Command] to follow any [com.seattlesolvers.solverslib.trajectory.Trajectory] with a [TankDrive] type of drivetrain.
-     * It is preferred to follow only straight paths and use the [turnToAngle] command to rotate instead.
-     * Creates a timer which will be reset each time the command is called.
-     * Based on the elapsed time, a sample from the [com.seattlesolvers.solverslib.trajectory.Trajectory] will be passed into the [ramseteController]
-     * and given to a drive velocity function.
-     * @param trajectory the desired [com.seattlesolvers.solverslib.trajectory.Trajectory] to follow
-     * @return a [RunCommand] which follows the trajectory
-     */
-    fun ramsetteCommand(trajectory: Trajectory): Command {
-        // Creates a timer
-        val timer: ElapsedTime = ElapsedTime()
-
-
-        return RunCommand({
-            val desiredState = trajectory.sample(timer.seconds())
-            val desiredSpeeds = ramseteController.calculate(getPose(), desiredState)
-            runVelocity(desiredSpeeds)
-        })
-            .addRequirements(this)
-            .beforeStarting(InstantCommand({ timer.reset() }))
-            .interruptOn { timer.seconds() >= trajectory.totalTimeSeconds }
-            .whenFinished { runVelocity(ChassisSpeeds()) }
     }
 
     /**
@@ -209,8 +198,8 @@ class TankDrive(
     /**
      * @return the robot's [Pose2d]
      */
-    fun getPose(): Pose2d {
-        return odometry.poseMeters
+    fun getPose(): java.util.function.Supplier<Pose2d> {
+        return {odometry.poseMeters }
     }
 
     /**

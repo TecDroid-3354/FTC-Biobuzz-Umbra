@@ -36,12 +36,10 @@ class Superstructure (val hardwareMap: HardwareMap) {
     fun enableintakeCMD(): Command {
         return InstantCommand({ intake.enableintake() })
     }
-
     fun disableintakeCMD(): Command {
         return InstantCommand({ intake.disableintake() })
 
     }
-
     fun raisePatitaCMD(): Command {
         return InstantCommand({ intakePatita.IntakeDeployAngle(IntakePatitaConstants.Mechanical.DEPLOY_ANGLE) })
     }
@@ -56,7 +54,6 @@ class Superstructure (val hardwareMap: HardwareMap) {
             enableintakeCMD()
         )
     }
-
     fun stopIntakePollenSequence(): SequentialCommandGroup {
         return SequentialCommandGroup(closePatitaCMD(), disableintakeCMD())
     }
